@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"jwt-demo/handler"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func main() {
 	//validate token
 	http.HandleFunc("/validate", handler.Validate)
 
-	if err := http.ListenAndServe(":8000", nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", handler.Port), nil); err != nil {
 		log.Fatalln(err)
 	}
 }

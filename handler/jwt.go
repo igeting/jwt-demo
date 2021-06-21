@@ -14,6 +14,8 @@ var (
 	exp int
 	// The token secret key
 	key string
+	// The server port
+	Port int
 )
 
 var users = map[string]string{
@@ -37,6 +39,7 @@ type Claims struct {
 func init() {
 	flag.IntVar(&exp, "exp", 5, "the token expires minutes")
 	flag.StringVar(&key, "key", "my_secret_key", "the token secret key")
+	flag.IntVar(&Port, "port", 8000, "the token server port")
 	flag.Parse()
 }
 
