@@ -18,6 +18,8 @@ func main() {
 
 	//auth token
 	http.HandleFunc("/auth", handler.Auth)
+	//generate token
+	http.HandleFunc("/generate", handler.Generate)
 	//validate token
 	http.HandleFunc("/validate", handler.Validate)
 

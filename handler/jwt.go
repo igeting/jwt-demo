@@ -23,6 +23,8 @@ var users = map[string]string{
 	"user2": "password2",
 }
 
+type Others map[string]interface{}
+
 // Create a struct to read the username and password from the request body
 type Credentials struct {
 	Username string `json:"username"`
@@ -34,6 +36,7 @@ type Credentials struct {
 type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
+	Others
 }
 
 func init() {
@@ -219,6 +222,37 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString([]byte(key))
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(tokenString))
+}
+
+//generate token
+func Generate(w http.ResponseWriter, r *http.Request) {
+	var params Others
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	expirationTime := time.Now().Add(time.Minute * time.Duration(exp))
+
+	claims := &Claims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+		Others: params,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
