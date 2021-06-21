@@ -96,7 +96,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		Expires: expirationTime,
 	})
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("login success"))
+	w.Write([]byte("success"))
 }
 
 func Welcome(w http.ResponseWriter, r *http.Request) {
@@ -289,5 +289,5 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("validate success"))
+	w.Write([]byte("success"))
 }
