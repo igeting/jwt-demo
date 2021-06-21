@@ -8,8 +8,12 @@ import (
 	"time"
 )
 
-// Create the JWT key used to create the signature
-var key = []byte("my_secret_key")
+var (
+	// The token secret key
+	key = []byte("my_secret_key")
+	// The token expires
+	expires = 5 * time.Minute
+)
 
 var users = map[string]string{
 	"user1": "password1",
@@ -18,8 +22,8 @@ var users = map[string]string{
 
 // Create a struct to read the username and password from the request body
 type Credentials struct {
-	Password string `json:"password"`
 	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // Create a struct that will be encoded to a JWT.
@@ -29,8 +33,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// Create the Signin handler
-func Signin(w http.ResponseWriter, r *http.Request) {
+func Auth(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	// Get the JSON body and decode into credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -53,7 +56,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(expires)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: creds.Username,
@@ -80,6 +83,8 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		Value:   tokenString,
 		Expires: expirationTime,
 	})
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("login success"))
 }
 
 func Welcome(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +160,6 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	// (END) The code up-till this point is the same as the first part of the `Welcome` route
 
 	// We ensure that a new token is not issued until enough time has elapsed
 	// In this case, a new token will only be issued if the old token is within
@@ -166,7 +170,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Now, create a new token for the current use, with a renewed expiration time
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(expires)
 	claims.ExpiresAt = expirationTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(key)
@@ -183,8 +187,8 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-//get token
-func Auth(w http.ResponseWriter, r *http.Request) {
+//signin token
+func Signin(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -199,7 +203,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(expires)
 
 	claims := &Claims{
 		Username: creds.Username,
@@ -246,5 +250,5 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("success"))
+	w.Write([]byte("validate success"))
 }

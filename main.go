@@ -11,12 +11,12 @@ POST http://localhost:8080/signin
 {"username":"user1","password":"password1"}
 */
 func main() {
-	http.HandleFunc("/signin", handler.Signin)
+	http.HandleFunc("/auth", handler.Auth)
 	http.HandleFunc("/welcome", handler.Welcome)
 	http.HandleFunc("/refresh", handler.Refresh)
 
-	//get token
-	http.HandleFunc("/auth", handler.Auth)
+	//signin token
+	http.HandleFunc("/signin", handler.Signin)
 	//validate token
 	http.HandleFunc("/validate", handler.Validate)
 
