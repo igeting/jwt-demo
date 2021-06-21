@@ -7,7 +7,7 @@ import (
 )
 
 /*
-POST http://localhost:8080/auth
+POST http://localhost:8000/auth
 {"username":"user1","password":"password1"}
 */
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	//validate token
 	http.HandleFunc("/validate", handler.Validate)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatalln(err)
 	}
 }

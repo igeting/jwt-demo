@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
@@ -9,10 +10,10 @@ import (
 )
 
 var (
+	// The token expires minutes
+	exp int
 	// The token secret key
-	key = []byte("my_secret_key")
-	// The token expires
-	expires = 5 * time.Minute
+	key string
 )
 
 var users = map[string]string{
@@ -31,6 +32,12 @@ type Credentials struct {
 type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
+}
+
+func init() {
+	flag.IntVar(&exp, "exp", 5, "the token expires minutes")
+	flag.StringVar(&key, "key", "my_secret_key", "the token secret key")
+	flag.Parse()
 }
 
 func Signin(w http.ResponseWriter, r *http.Request) {
@@ -55,8 +62,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Declare the expiration time of the token
-	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(expires)
+	expirationTime := time.Now().Add(time.Minute * time.Duration(exp))
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: creds.Username,
@@ -69,7 +75,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	// Declare the token with the algorithm used for signing, and the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Create the JWT string
-	tokenString, err := token.SignedString(key)
+	tokenString, err := token.SignedString([]byte(key))
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
 		w.WriteHeader(http.StatusInternalServerError)
@@ -112,7 +118,7 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
 	// or if the signature does not match
 	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return key, nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
@@ -146,7 +152,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	tknStr := c.Value
 	claims := &Claims{}
 	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return key, nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
@@ -170,10 +176,10 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Now, create a new token for the current use, with a renewed expiration time
-	expirationTime := time.Now().Add(expires)
+	expirationTime := time.Now().Add(time.Minute * time.Duration(exp))
 	claims.ExpiresAt = expirationTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(key)
+	tokenString, err := token.SignedString([]byte(key))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -203,7 +209,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expirationTime := time.Now().Add(expires)
+	expirationTime := time.Now().Add(time.Minute * time.Duration(exp))
 
 	claims := &Claims{
 		Username: creds.Username,
@@ -214,7 +220,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(key)
+	tokenString, err := token.SignedString([]byte(key))
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -235,7 +241,7 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 
 	claims := &Claims{}
 	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return key, nil
+		return []byte(key), nil
 	})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
