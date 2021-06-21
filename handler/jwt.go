@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"log"
 	"net/http"
 	"time"
 )
@@ -233,6 +234,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("auth success, user:%s\n", creds.Username)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
 }
@@ -260,6 +262,7 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("generate success, token:%s\n", tokenString)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
 }
@@ -288,6 +291,8 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	log.Printf("validate success, token:%s\n", tknStr)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("success"))
 }
