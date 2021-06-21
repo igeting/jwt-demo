@@ -240,11 +240,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 //generate token
 func Generate(w http.ResponseWriter, r *http.Request) {
 	var params Others
-	err := json.NewDecoder(r.Body).Decode(&params)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	json.NewDecoder(r.Body).Decode(&params)
 
 	expirationTime := time.Now().Add(time.Minute * time.Duration(exp))
 
