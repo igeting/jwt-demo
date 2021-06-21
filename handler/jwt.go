@@ -33,7 +33,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func Auth(w http.ResponseWriter, r *http.Request) {
+func Signin(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	// Get the JSON body and decode into credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -187,8 +187,8 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-//signin token
-func Signin(w http.ResponseWriter, r *http.Request) {
+//auth token
+func Auth(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {

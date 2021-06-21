@@ -7,16 +7,16 @@ import (
 )
 
 /*
-POST http://localhost:8080/signin
+POST http://localhost:8080/auth
 {"username":"user1","password":"password1"}
 */
 func main() {
-	http.HandleFunc("/auth", handler.Auth)
+	http.HandleFunc("/signin", handler.Signin)
 	http.HandleFunc("/welcome", handler.Welcome)
 	http.HandleFunc("/refresh", handler.Refresh)
 
-	//signin token
-	http.HandleFunc("/signin", handler.Signin)
+	//auth token
+	http.HandleFunc("/auth", handler.Auth)
 	//validate token
 	http.HandleFunc("/validate", handler.Validate)
 
