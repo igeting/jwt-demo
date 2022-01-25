@@ -18,7 +18,7 @@ const (
 
 var (
 	secret                = "secret"
-	expires time.Duration = time.Minute * 1
+	expires time.Duration = time.Minute * 30
 )
 
 type Header struct {
